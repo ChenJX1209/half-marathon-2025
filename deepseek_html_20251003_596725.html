@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2025半程马拉松成绩报告</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(90deg, #0080CB 0%, #2a9df4 100%);
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .privacy-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .privacy-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            color: #0080CB;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eaeaea;
+            display: flex;
+            align-items: center;
+        }
+
+        .card-title i {
+            margin-right: 10px;
+            font-size: 1.3rem;
+        }
+
+        /* 基本信息模块样式 */
+        .basic-info-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-between;
+        }
+
+        .runner-info {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .info-item:hover {
+            background: #eef2f7;
+            transform: translateY(-3px);
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #555;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #0080CB;
+        }
+
+        .privacy-hidden {
+            filter: blur(5px);
+            user-select: none;
+        }
+
+        .runner-avatar {
+            flex: 0 0 150px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0080CB 0%, #2a9df4 100%);
+            border-radius: 10px;
+            padding: 20px;
+            color: white;
+            text-align: center;
+        }
+
+        .avatar-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .runner-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .runner-number {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        /* 分段计时表格样式 */
+        .split-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .split-table th,
+        .split-table td {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #eaeaea;
+        }
+
+        .split-table th {
+            background: linear-gradient(135deg, #0080CB 0%, #2a9df4 100%);
+            color: white;
+            font-weight: 600;
+        }
+
+        .split-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .split-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .split-table tr:hover {
+            background-color: #eef2f7;
+        }
+
+        .pace-display {
+            font-weight: 600;
+            color: #0080CB;
+        }
+
+        .speed-display {
+            font-weight: 600;
+            color: #2a9df4;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #0080CB 0%, #2a9df4 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        /* 进度条样式 */
+        .progress-container {
+            margin-top: 25px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .progress-title {
+            font-weight: 600;
+            color: #0080CB;
+        }
+
+        .progress-percentage {
+            font-weight: 700;
+            color: #0080CB;
+        }
+
+        .progress-bar {
+            height: 30px;
+            background: #eef2f7;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #0080CB 0%, #2a9df4 100%);
+            border-radius: 15px;
+            transition: width 1s ease-in-out;
+        }
+
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .ranking-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .ranking-position {
+            font-weight: 600;
+            color: #0080CB;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9rem;
+            border-top: 1px solid #eaeaea;
+        }
+
+        @media (max-width: 768px) {
+            .card-container {
+                grid-template-columns: 1fr;
+            }
+
+            .basic-info-container {
+                flex-direction: column;
+            }
+
+            .runner-avatar {
+                flex: 1;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .privacy-toggle {
+                position: static;
+                margin-top: 15px;
+                display: inline-block;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>2025半程马拉松成绩报告</h1>
+            <div class="subtitle">参赛选手个人成绩分析与统计</div>
+            <button class="privacy-toggle" id="privacyToggle">隐藏隐私信息</button>
+        </header>
+
+        <div class="card-container">
+            <!-- 基本信息模块 -->
+            <div class="card">
+                <h2 class="card-title">基本信息</h2>
+                <div class="basic-info-container">
+                    <!-- <div class="runner-avatar">
+                        <div class="avatar-icon">🏃</div>
+                        <div class="runner-name privacy-sensitive">陈吉祥</div>
+                        <div class="runner-number privacy-sensitive">C16317</div>
+                    </div> -->
+                    <div class="runner-info">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">参赛号</div>
+                                <div class="info-value privacy-sensitive">C*****</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">姓名</div>
+                                <div class="info-value privacy-sensitive">***</div>
+                            </div>
+                            <!-- <div class="info-item">
+                                <div class="info-label">枪时成绩</div>
+                                <div class="info-value">02:00:03</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">净时成绩</div>
+                                <div class="info-value">01:57:30</div>
+                            </div> -->
+                            <div class="info-item">
+                                <div class="info-label">比赛项目</div>
+                                <div class="info-value">半程马拉松</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">比赛日期</div>
+                                <div class="info-value">2025年10月2日</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">比赛地点</div>
+                                <div class="info-value">莒县</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">完成状态</div>
+                                <div class="info-value">已完赛</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 成绩模块 -->
+            <div class="card">
+                <h2 class="card-title">成绩排名</h2>
+
+                  <div class="basic-info-container">
+                    <!-- <div class="runner-avatar">
+                        <div class="avatar-icon">🏃</div>
+                        <div class="runner-name privacy-sensitive">陈吉祥</div>
+                        <div class="runner-number privacy-sensitive">C16317</div>
+                    </div> -->
+                    <div class="runner-info">
+                        <div class="info-grid">
+                            <!-- <div class="info-item">
+                                <div class="info-label">参赛号</div>
+                                <div class="info-value privacy-sensitive">C16317</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">姓名</div>
+                                <div class="info-value privacy-sensitive">陈吉祥</div>
+                            </div> -->
+                            <div class="info-item">
+                                <div class="info-label">枪时成绩</div>
+                                <div class="info-value">02:00:03</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">净时成绩</div>
+                                <div class="info-value">01:57:30</div>
+                            </div>
+                            <!-- <div class="info-item">
+                                <div class="info-label">比赛项目</div>
+                                <div class="info-value">半程马拉松</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">比赛日期</div>
+                                <div class="info-value">2025年4月13日</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">比赛地点</div>
+                                <div class="info-value">莒县</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">完成状态</div>
+                                <div class="info-value">已完赛</div>
+                            </div> -->
+                        </div>
+                    </div>
+                </div>
+                
+            <!-- 枪时成绩进度条 -->
+            <!-- <div class="progress-container">
+                <div class="progress-header">
+                    <div class="progress-title">枪时成绩排名</div>
+                    <div class="progress-percentage">前43.3%</div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 43.3%"></div>
+                </div>
+                <div class="progress-labels">
+                    <span>0%</span>
+                    <span>100%</span>
+                </div>
+                <div class="ranking-info">
+                    <span>排名位置: <span class="ranking-position">1233名 / 2848人</span></span>
+                    <span>超越56.7%的选手</span>
+                </div>
+            </div> -->
+
+            <!-- 净时成绩进度条 -->
+            <div class="progress-container">
+                <div class="progress-header">
+                    <div class="progress-title">净时成绩排名</div>
+                    <div class="progress-percentage">前39.9%</div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 39.9%"></div>
+                </div>
+                <div class="progress-labels">
+                    <span>0%</span>
+                    <span>100%</span>
+                </div>
+                <div class="ranking-info">
+                    <span>排名位置: <span class="ranking-position">1136名 / 2848人</span></span>
+                    <span>超越60.1%的选手</span>
+                </div>
+            </div>
+
+            <!-- 排名总结 -->
+            <!-- <div class="ranking-summary"
+                style="margin-top: 25px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                <h3 style="color: #0080CB; margin-bottom: 10px;">排名分析</h3>
+                <p style="color: #555; line-height: 1.5;">
+                    您的净时成绩排名位于所有参赛选手的前<span style="font-weight: 700; color: #0080CB;">39.9%</span>，
+                    表现优于<span style="font-weight: 700; color: #0080CB;">60.1%</span>的选手。
+                    在2848名参赛者中，您位列第<span style="font-weight: 700; color: #0080CB;">1136</span>名，
+                    展现了良好的竞技水平。
+                </p>
+            </div> -->
+        </div>
+    </div>
+
+    <!-- 分段计时模块 -->
+    <div class="card">
+        <h2 class="card-title">分段计时与配速分析</h2>
+
+        <table class="split-table">
+            <thead>
+                <tr>
+                    <th>分段点</th>
+                    <th>用时</th>
+                    <th>分段配速</th>
+                    <th>分段时速</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>5KM</td>
+                    <td>00:27:25</td>
+                    <td class="pace-display">5'29"</td>
+                    <td class="speed-display">10.96 km/h</td>
+                </tr>
+                <tr>
+                    <td>10KM</td>
+                    <td>00:54:36</td>
+                    <td class="pace-display">5'27"</td>
+                    <td class="speed-display">11.01 km/h</td>
+                </tr>
+                <tr>
+                    <td>15KM</td>
+                    <td>01:22:20</td>
+                    <td class="pace-display">5'33"</td>
+                    <td class="speed-display">10.82 km/h</td>
+                </tr>
+                <tr>
+                    <td>折返点</td>
+                    <td>01:46:48</td>
+                    <td class="pace-display">5'41"</td>
+                    <td class="speed-display">10.51 km/h</td>
+                </tr>
+                <tr>
+                    <td>20KM</td>
+                    <td>01:51:11</td>
+                    <td class="pace-display">5'34"</td>
+                    <td class="speed-display">10.77 km/h</td>
+                </tr>
+                <tr>
+                    <td>终点</td>
+                    <td>01:57:30</td>
+                    <td class="pace-display">5'44"</td>
+                    <td class="speed-display">10.48 km/h</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">全程平均配速</div>
+                <div class="stat-value">5'34"</div>
+                <!-- <div class="stat-label">每公里</div> -->
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">全程平均时速</div>
+                <div class="stat-value">10.76 km/h</div>
+                <!-- <div class="stat-label">每小时</div> -->
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>2025 | 成绩报告生成时间: 2025年10月3日</p>
+    </footer>
+    </div>
+
+    <script>
+        // 添加进度条动画效果
+        document.addEventListener('DOMContentLoaded', function () {
+            const progressBars = document.querySelectorAll('.progress-fill');
+
+            progressBars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 300);
+            });
+
+            // 隐私信息切换功能
+            const privacyToggle = document.getElementById('privacyToggle');
+            let isPrivacyHidden = false;
+
+            privacyToggle.addEventListener('click', function () {
+                const sensitiveElements = document.querySelectorAll('.privacy-sensitive');
+
+                if (isPrivacyHidden) {
+                    // 显示隐私信息
+                    sensitiveElements.forEach(el => {
+                        el.classList.remove('privacy-hidden');
+                    });
+                    privacyToggle.textContent = '隐藏隐私信息';
+                } else {
+                    // 隐藏隐私信息
+                    sensitiveElements.forEach(el => {
+                        el.classList.add('privacy-hidden');
+                    });
+                    privacyToggle.textContent = '显示隐私信息';
+                }
+
+                isPrivacyHidden = !isPrivacyHidden;
+            });
+        });
+    </script>
+</body>
+
+</html>
